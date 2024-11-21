@@ -1,6 +1,6 @@
 # GinStudy
 
-### 1. 
+### 1. 响应
 1. 创建一个默认路由
 
 ```go
@@ -66,4 +66,67 @@ router.GET("/html", func(c *gin.Context) {
     c.HTML(http.StatusOK, "index.html", gin.H{})
 })
 ```
-6. 
+6. 重定向
+```go 
+// 重定向
+/*
+    重定向301和302的区别
+    301:表示资源已被永久移动到新的位置，客户端和搜索引擎应使用新的 URL 来访问资源。
+    302:表示资源暂时被移动到另一个位置，客户端应继续使用旧的 URL 访问资源。
+*/
+router.GET("/baidu", func(c *gin.Context) {
+    c.Redirect(http.StatusMovedPermanently, "http://www.baidu.com")
+})
+```
+
+### 2. 请求
+1. 查询参数
+```url
+?id=1&user=genus&user=dog
+```
+```go
+// 请求
+// 查询请求
+router.GET("/query", func(c *gin.Context) {
+    // 返回查询参数
+    user1 := c.Query("user")
+    // 返回查询参数和查询结果
+    user2, ok := c.GetQuery("user")
+    // 返回同一参数的多个查询结果
+    user3, ok := c.GetQueryArray("user")
+    // 略：user4, ok := c.GetQueryMap("user")
+    if !ok {
+        fmt.Println("para is null ")
+    } else {
+        fmt.Println("user is: ", user1, user2, user3)
+    }
+})
+```
+2. 动态参数
+```go
+param/123xxx/456
+```
+```go
+// 动态参数
+router.GET("/param/:user_id/:book_id", func(c *gin.Context) {
+    userid := c.Param("user_id")
+    bookid := c.Param("book_id")
+    fmt.Printf("user id is %v ,book id is %v\n", userid, bookid)
+})
+```
+3. 表单PostForm
+
+可以接受multipart/form-data和application/x-www-form-urlencoded
+   ![img.png](mdsource/img.png)
+ ```go
+// 表单参数
+router.POST("/form", func(c *gin.Context) {
+    fmt.Println("name is ", c.PostForm("name"))
+    fmt.Println("names are ", c.PostFormArray("name"))
+    fmt.Println("default form is ", c.DefaultPostForm("addr", "0.0.0.0"))
+    // 接受所有的form，包括文件
+    multi, err := c.MultipartForm()
+    fmt.Println("multiform is ", multi, err)
+})
+```
+4. 
