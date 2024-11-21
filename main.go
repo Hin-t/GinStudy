@@ -1,25 +1,61 @@
 package main
 
 import (
-  "fmt"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-//TIP To run your code, right-click the code and select <b>Run</b>. Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.
-
 func main() {
-  //TIP Press <shortcut actionId="ShowIntentionActions"/> when your caret is at the underlined or highlighted text
-  // to see how GoLand suggests fixing it.
-  s := "gopher"
-  fmt.Println("Hello and welcome, %s!", s)
+	// 创建一个默认路由
+	router := gin.Default()
+	// 绑定路由规则和路由函数，访问/index的路由，将由对应的函数去处理
+	//router.GET("/index", func(c *gin.Context) {
+	//	// 状态码，
+	//	c.String(http.StatusOK, "hello world")
+	//})
+	// 响应json
+	router.GET("/json", func(c *gin.Context) {
+		// json响应结构体
+		type UserInfo struct {
+			Username string `json:"username"`
+			Age      int    `json:"age"`
+			Password string `json:"-"` // 不要转换为字符串
+		}
+		userInfo := UserInfo{Username: "user", Age: 18, Password: "123456"}
+		c.JSON(200, userInfo)
+		// json响应map
+		var p1Info = map[string]interface{}{
+			"p1Name":      "p1",
+			"p1Age":       12,
+			"p1Passworld": "123456",
+		}
+		c.JSON(200, p1Info)
+		// 直接响应json
+		c.JSON(200, gin.H{"json_name": "json", "age": 18, "password": 123456})
 
-  for i := 1; i <= 5; i++ {
-	//TIP You can try debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-	// for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>. To start your debugging session, 
-	// right-click your code in the editor and select the <b>Debug</b> option. 
-	fmt.Println("i =", 100/i)
-  }
+	})
+	// 响应xml
+	router.GET("/xml", func(c *gin.Context) {
+		c.XML(http.StatusOK, gin.H{"xml_name": "xml", "age": 18, "password": "123456"})
+	})
+	// 响应yaml
+	router.GET("/yaml", func(c *gin.Context) {
+		c.YAML(http.StatusOK, gin.H{"yaml_name": "yaml", "age": 18, "password": "123456", "data": gin.H{"name": "yaml"}})
+	})
+
+	// 加载模版目录下的所有目录文件
+	router.LoadHTMLGlob("templates/*")
+	// 加载静态文件目录下所有静态文件
+	// 在go中没有相对文件的路径，只有相对项目的路径
+	router.StaticFile("/static/screen.jpg", "./static/screen.jpg")
+	// 响应html
+	router.GET("/html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
+	// 启动监听，gin会把web服务启动在本机的0.0.0.0:8080端口上
+	// 启动方式1
+	router.Run(":8080")
+	// 启动方式2，用原生http启动,router.Run()本质就是http.ListenAndServe进一步封装
+	http.ListenAndServe(":8080", router)
+
 }
-
-//TIP See GoLand help at <a href="https://www.jetbrains.com/help/go/">jetbrains.com/help/go/</a>.
-// Also, you can try interactive lessons for GoLand by selecting 'Help | Learn IDE Features' from the main menu.
