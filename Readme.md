@@ -129,4 +129,58 @@ router.POST("/form", func(c *gin.Context) {
     fmt.Println("multiform is ", multi, err)
 })
 ```
-4. 
+4. 原始参数
+```go
+// form-data:
+----------------------------811858931537583816385214
+Content-Disposition: form-data; name="name"
+
+genus1234
+----------------------------811858931537583816385214
+Content-Disposition: form-data; name="name"
+
+zhangsan
+
+// x-www-form-urlencoded
+name=zhangsan&age=18
+
+
+```
+```go
+// 原始参数
+router.POST("/raw", func(c *gin.Context) {
+   body, _ := c.GetRawData()
+   header := c.GetHeader("content-type")
+   // json解析原始参数
+   type User struct {
+   Name string `json:"name"`
+   Age  int    `json:"age"`
+   }
+   var user User
+   err := json.Unmarshal(body, &user)
+   if err != nil {
+   return
+   }
+   fmt.Println(header, string(body), user)
+})
+```
+
+### 3. 四大请求方式
+GET：从服务器取出资源（一项或多项）
+   
+POST：在服务需新建一个资源
+
+PUT：在服务器更新资源（客户端提供完整资源数据）
+
+PATCH：在服务器更新资源（客户端提供需要修改的资源数据）
+
+DELETE：从服务器删除资源
+
+```go
+// 以文字资源为例
+// GET    /articles        访问文章列表
+// GET    /articles/:id    文章详情
+// POST   /articles        添加文章
+// PUT    /articles/:id    修改某一篇文章
+// DELETE /articles/:id    删除某一篇文章
+```

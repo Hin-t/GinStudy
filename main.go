@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -101,6 +102,22 @@ func main() {
 		// 接受所有的form，包括文件
 		multi, err := c.MultipartForm()
 		fmt.Println("multiform is ", multi, err)
+	})
+
+	// 原始参数
+	router.POST("/raw", func(c *gin.Context) {
+		body, _ := c.GetRawData()
+		header := c.GetHeader("content-type")
+		type User struct {
+			Name string `json:"name"`
+			Age  int    `json:"age"`
+		}
+		var user User
+		err := json.Unmarshal(body, &user)
+		if err != nil {
+			return
+		}
+		fmt.Println(header, string(body), user)
 	})
 	// 启动监听，gin会把web服务启动在本机的0.0.0.0:8080端口上
 	// 启动方式1
